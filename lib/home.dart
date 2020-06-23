@@ -1,5 +1,5 @@
+import 'package:anim_test/ball_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -7,47 +7,53 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Ticker _ticker;
-  double size = 50.0;
-  double dy = 0.5;
-  double x = 100.0;
-  double y = 100.0;
-  int gravity = 1;
+  BallController ballController = BallController();
 
-  @override
-  void initState() {
-    super.initState();
-    _ticker = Ticker((now) {
-      setState(() {});
-    });
-    _ticker.start();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _ticker.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    if (y > height - size) {
-      dy = -dy;
-    }
-    dy += gravity;
-    y += dy;
-    return Scaffold(
-      body: Transform.translate(
-        offset: Offset(x, y),
-        child: Container(
-          width: size,
-          height: size,
+  AnimatedBuilder _ball() => AnimatedBuilder(
+        animation: ballController,
+        builder: (controller, snapshot) => AnimatedContainer(
+          width: 50,
+          height: 50,
+          transform: Matrix4.identity()
+            ..translate(ballController.x, ballController.y),
+          curve: ballController.curve,
+          duration: ballController.duration,
           decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(40),
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(50),
           ),
         ),
+      );
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FloatingActionButton(
+            onPressed: () =>
+                ballController.setTranslate(newX: ballController.x - 50),
+            child: Icon(Icons.keyboard_arrow_left),
+          ),
+          FloatingActionButton(
+            onPressed: () =>
+                ballController.setTranslate(newY: ballController.y - 50),
+            child: Icon(Icons.keyboard_arrow_up),
+          ),
+          FloatingActionButton(
+            onPressed: () =>
+                ballController.setTranslate(newY: ballController.y + 50),
+            child: Icon(Icons.keyboard_arrow_down),
+          ),
+          FloatingActionButton(
+            onPressed: () =>
+                ballController.setTranslate(newX: ballController.x + 50),
+            child: Icon(Icons.keyboard_arrow_right),
+          ),
+        ],
+      ),
+      body: Center(
+        child: _ball(),
       ),
     );
   }
